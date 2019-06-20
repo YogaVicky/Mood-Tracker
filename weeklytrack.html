@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width = device-width , initial-scale = 1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie = edge">
+	<link rel="stylesheet" type="text/css" href="./static/week.css">
+	<link rel="stylesheet" href="./static/bootstrapcss.css">
+	<script type="text/javascript" src="./static/chartjs.js"></script>
+	<script src="./static/datalabel.js"></script>
+	<title></title>
+</head>
+<body>
+	<div id="screenview">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-9">
+					<br><br>
+				  		<h1><span class="heading1">Mood Tracker</span></h1>
+				  		<div id="links">
+				  			<a href={{url_for('dailystat')}}><button id="dailybutton" >Daily Stats</button></a>
+				  			<a href={{url_for('weekstat')}}><button id="newbutton">Weekly Stats</button></a>
+				  			<a href={{url_for('monthstat')}}><button id="weekstatbutton">Monthly Stats</button></a>
+				  			<a href={{url_for('yearstat')}}><button id="monthstatbutton">Yearly Stats</button></a>
+				  			
+				  		</div>
+					<div>
+						<div id="weekgraph">
+							<canvas id="weekstatgraph"></canvas>
+						</div>
+						<a href="#" id="downloader" onclick="downloadcanvas()" download="image1.png"><span id="downloadweekgraph">Download!</span></a>
+					</div>
+				</div>	
+				<div class="col-3">
+					<div id="chartarea">
+					<h1><span class="chartheading1">Today's Statistics</span></h1>
+					<br>
+					<h2 class="chartheading2">Morning</h2>
+					<canvas id="pieChart1" style="height: 83%;width: 83%;"></canvas>
+					<a href="#" id="downloader1" onclick="downloadcanvas1()" download="image2.png"><span id="downloadweekgraph1">Download!</span></a>
+					<br><br>
+					<h2 class="chartheading2">Afternoon</h2>
+					<canvas id="pieChart2" style="height: 83%;width: 83%;"></canvas>
+					<a href="#" id="downloader2" onclick="downloadcanvas2()" download="image3.png"><span id="downloadweekgraph2">Download!</span></a>
+					<br><br>
+					<h2 class="chartheading2">Evening</h2>
+					<canvas id="pieChart3" style="height: 70%;width: 70%;"></canvas>
+					<a href="#" id="downloader3" onclick="downloadcanvas3()" download="image4.png"><span id="downloadweekgraph3">Download!</span></a>
+					<br>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="heading2">
+	  		<p>ThankYou for using Mood Tracker!</p>
+		</div>
+		</div>
+	<script type="text/javascript">
+		function downloadcanvas(){
+			console.log("Hello");
+		    document.getElementById("downloader").download = "image1.png";
+		    document.getElementById("downloader").href = document.getElementById("weekstatgraph").toDataURL("image1/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+	</script>
+	<script type="text/javascript">
+		function downloadcanvas1(){
+			console.log("Hello");
+		    document.getElementById("downloader1").download = "image2.png";
+		    document.getElementById("downloader1").href = document.getElementById("pieChart1").toDataURL("image2/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+	</script>
+	<script type="text/javascript">
+		function downloadcanvas2(){
+			console.log("Hello");
+		    document.getElementById("downloader2").download = "image3.png";
+		    document.getElementById("downloader2").href = document.getElementById("pieChart2").toDataURL("image3/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+	</script>
+	<script type="text/javascript">
+		function downloadcanvas3(){
+			console.log("Hello");
+		    document.getElementById("downloader3").download = "image4.png";
+		    document.getElementById("downloader3").href = document.getElementById("pieChart3").toDataURL("image4/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+	</script>
+	<script type="text/javascript">
+		var j = 0;
+		var labeldata = [];
+		{%for i in range(7)%}
+		console.log('{{weekday[i]}}');
+		labeldata[j] = '{{weekday[i]}}';
+		j++;
+		{%endfor%}
+		console.log(labeldata);
+		var barChartData = {
+  labels: labeldata,
+  datasets: [
+    {
+      label: "Happy",
+      backgroundColor: '#80ff00',
+      borderColor: "white",
+      borderWidth: 1,
+      data: {{week[0]}}
+    },
+    {
+      label: "Sad",
+      backgroundColor:'#ffff1a' ,
+      borderColor: "white",
+      borderWidth: 1,
+      data: {{week[1]}}
+    },
+    {
+      label: "Angry",
+      backgroundColor: '#e60000',
+      borderColor: "white",
+      borderWidth: 1,
+      data: {{week[2]}}
+    }
+  ]
+};
+var chartOptions = {
+  responsive: true,
+  legend: {
+    position: "top",
+    labels: {
+			fontSize : 16,
+    		fontColor: 'white'
+			}
+  },
+  plugins: {
+				  datalabels: {
+					color: 'black',
+					anchor: 'end',
+					align: 'start',
+					offset: -20,
+					borderWidth: 3,
+					borderColor: 'black',
+					borderRadius: 25,
+					backgroundColor: (context) => {
+					  return context.dataset.backgroundColor;
+					},
+					font: {
+					  weight: 'bold',
+					  size: '10'
+					}
+				  }
+				},
+  scales: {
+    yAxes: [{
+      ticks: {
+        beginAtZero: true
+      }
+    }]
+  }
+}
+
+  var ctx = document.getElementById("weekstatgraph").getContext("2d");
+  window.myBar = new Chart(ctx, {
+    type: "bar",
+    data: barChartData,
+    options: chartOptions
+  });
+;
+	</script>
+	<script type="text/javascript">
+		var data1 = [0,0,0];
+		{%for artist in data%}
+			{%if artist[3] == 1%}
+				data1[0]++;
+			{%endif%}
+			{%if artist[3] == 2%}
+				data1[1]++;
+			{%endif%}
+			{%if artist[3] == 3%}
+				data1[2]++;
+			{%endif%}
+		{%endfor%}
+		var myChart = document.getElementById('pieChart1').getContext('2d');
+		var pieChart1 = new Chart(myChart , {
+			type : 'doughnut' ,
+			data : {
+				labels : ['Happy' , 'Sad' , 'Angry'] ,
+				datasets : [{
+					label : 'Mood' ,
+					data : data1 ,
+					// backgroundColor : 'green'
+					backgroundColor : [
+						'#80ff00' ,
+						'#ffff1a' ,
+						'#e60000'
+					]
+				}]
+			} ,
+			options: {
+        		legend: {
+        			display : false,
+            		labels: {
+                		fontColor: 'white',
+            				}
+        				},
+        				plugins: {
+					  datalabels: {
+						color: 'black',
+						anchor: 'end',
+						align: 'start',
+						offset: 4,
+						borderWidth: 3,
+						borderColor: 'black',
+						borderRadius: 25,
+						backgroundColor: (context) => {
+						  return context.dataset.backgroundColor;
+						},
+						font: {
+						  weight: 'bold',
+						  size: '10'
+						}
+					  }
+					}
+    				}
+		});
+	</script>
+	<script type="text/javascript">
+		var data2 = [0,0,0];
+		{%for artist in data%}
+			{%if artist[5] == 1%}
+				data2[0]++;
+			{%endif%}
+			{%if artist[5] == 2%}
+				data2[1]++;
+			{%endif%}
+			{%if artist[5] == 3%}
+				data2[2]++;
+			{%endif%}
+		{%endfor%}
+		var myChart = document.getElementById('pieChart2').getContext('2d');
+		var pieChart2 = new Chart(myChart , {
+			type : 'doughnut' ,
+			data : {
+				labels : ['Happy' , 'Sad' , 'Angry'] ,
+				datasets : [{
+					label : 'Mood' ,
+					data :data2,
+					// backgroundColor : 'green'
+					backgroundColor : [
+						'#80ff00' ,
+						'#ffff1a' ,
+						'#e60000'
+					]
+				}]
+			} ,
+			options: {
+        		legend: {
+        			display : false,
+            		labels: {
+                		fontColor: 'white'
+            				}
+        				},
+        				plugins: {
+					  datalabels: {
+						color: 'black',
+						anchor: 'end',
+						align: 'start',
+						offset: 4,
+						borderWidth: 3,
+						borderColor: 'black',
+						borderRadius: 25,
+						backgroundColor: (context) => {
+						  return context.dataset.backgroundColor;
+						},
+						font: {
+						  weight: 'bold',
+						  size: '10'
+						}
+					  }
+					}
+    				}
+		});
+	</script>
+	<script type="text/javascript">
+		var data3 = [0,0,0];
+		{%for artist in data%}
+			{%if artist[7] == 1%}
+				data3[0]++;
+			{%endif%}
+			{%if artist[7] == 2%}
+				data3[1]++;
+			{%endif%}
+			{%if artist[7] == 3%}
+				data3[2]++;
+			{%endif%}
+		{%endfor%}
+		var myChart = document.getElementById('pieChart3').getContext('2d');
+		var pieChart3 = new Chart(myChart , {
+			type : 'doughnut' ,
+			data : {
+				labels : ['Happy' , 'Sad' , 'Angry'] ,
+				datasets : [{
+					label : 'Mood' ,
+					data : data3 ,
+					// backgroundColor : 'green'
+					backgroundColor : [
+						'#80ff00' ,
+						'#ffff1a' ,
+						'#e60000'
+					]
+				}]
+			} , 
+			options: {
+        		legend: {
+        			position: 'bottom',
+            		labels: {
+            			fontSize : 16,
+                		fontColor: 'white'
+            				}
+        				},
+        				plugins: {
+					  datalabels: {
+						color: 'black',
+						anchor: 'end',
+						align: 'start',
+						offset: 4,
+						borderWidth: 3,
+						borderColor: 'black',
+						borderRadius: 25,
+						backgroundColor: (context) => {
+						  return context.dataset.backgroundColor;
+						},
+						font: {
+						  weight: 'bold',
+						  size: '10'
+						}
+					  }
+					}
+    				}
+		});
+	</script>
+	<script src="./static/bootstrap1.js"></script>
+	<script src="./static/bootstrap2.js"></script>
+	<script src="./static/bootstrap3.js"></script>
+	<script>
+	$(document).ready(function(){
+	  $('[data-toggle="tooltip"]').tooltip();   
+	});
+</script>
+</body>
+</html>
